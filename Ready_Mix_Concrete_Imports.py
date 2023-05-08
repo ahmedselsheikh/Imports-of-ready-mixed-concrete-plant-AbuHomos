@@ -11,17 +11,14 @@ column_names = df.columns.tolist()
 # Create the Streamlit app
 st.title('توريدات محطة الخرسانة - أبو حمص')
 
-# Add a dropdown widget to select the column
-selected_column = st.selectbox('Select a column:', column_names)
+# Add dropdown widgets to select the columns for filtering
+filter_columns = st.multiselect('Select columns for filtering:', column_names)
 
-# Filter the data based on the selected column
-filtered_data = df[selected_column].dropna().unique().tolist()
-
-# Add a dropdown widget to select the filtered item
-selected_item = st.selectbox('Select an item:', filtered_data)
-
-# Filter the dataframe based on the selected item
-filtered_df = df[df[selected_column] == selected_item]
+# Apply filters to the DataFrame
+filtered_df = df.copy()
+for col in filter_columns:
+    selected_values = st.multiselect(f'Select {col}:', df[col].dropna().unique().tolist())
+    filtered_df = filtered_df[filtered_df[col].isin(selected_values)]
 
 # Calculate the sum of "الكميه" column for each element of "اسم الخامة" and round to two decimal places
 sum_by_material = filtered_df.groupby('اسم الخامة')['الكميه'].sum().round(2).reset_index()

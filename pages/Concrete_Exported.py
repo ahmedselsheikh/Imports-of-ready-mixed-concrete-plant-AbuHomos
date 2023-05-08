@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 
-# load data from excel sheet
+# Load data from Excel sheet
 df = pd.read_excel("تسجيل صادر خرسانة محطة ابو حمص.xlsx", sheet_name='صادر خرسانة', skiprows=3, engine='openpyxl')
 st.set_page_config(layout='wide')
 
@@ -10,19 +10,16 @@ column_names = df.columns.tolist()
 # Create the Streamlit app
 st.title('صادرات محطة الخرسانة - أبو حمص')
 
-# Add a dropdown widget to select the column
-selected_column = st.selectbox('Select a column:', column_names)
+# Add dropdown widgets to select the columns for filtering
+filter_columns = st.multiselect('Select columns for filtering:', column_names)
 
-# Filter the data based on the selected column
-filtered_data = df[selected_column].dropna().unique().tolist()
+# Apply filters to the DataFrame
+filtered_df = df.copy()
+for col in filter_columns:
+    selected_values = st.multiselect(f'Select {col}:', df[col].dropna().unique().tolist())
+    filtered_df = filtered_df[filtered_df[col].isin(selected_values)]
 
-# Add a dropdown widget to select the filtered item
-selected_item = st.selectbox('Select an item:', filtered_data)
-
-# Filter the dataframe based on the selected item
-filtered_df = df[df[selected_column] == selected_item]
-
-# Calculate the sum of "الكميه" column for each element of "اسم الخامة" and round to two decimal places
+# Calculate the sum of "الكمية" column for each element of "اسم الخامة" and round to two decimal places
 sum_by_material = filtered_df.groupby('اسم الخامة')['الكمية'].sum().round(2).reset_index()
 
 # Format the values without trailing zeros
@@ -40,6 +37,6 @@ sum_by_material_styled = sum_by_material.style.set_properties(**{'text-align': '
 st.write('Filtered Data:')
 st.write(filtered_df)
 
-# Display the sum of "الكميه" column for each element of "اسم الخامة"
+# Display the sum of "الكمية" column for each element of "اسم الخامة"
 st.write('Sum of الكمية column by material:')
 st.dataframe(sum_by_material_styled, height=200)
