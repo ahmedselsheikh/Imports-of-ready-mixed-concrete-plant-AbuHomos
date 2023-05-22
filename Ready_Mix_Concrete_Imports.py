@@ -5,6 +5,9 @@ import pandas as pd
 df = pd.read_excel('تسجيل خامات المحطة.xlsx', sheet_name='خامات خرسانة')
 st.set_page_config(layout='wide')
 
+with open('design.css') as source_design:
+    st.markdown(f"<style>{source_design.read()}</style>", unsafe_allow_html=True)
+
 # Create a list of column names
 column_names = df.columns.tolist()
 
